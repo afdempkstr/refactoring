@@ -71,11 +71,8 @@ namespace Refactoring
 
                             case Enums.ExitOptions.Enter:
 
-                                //dBManager.LogInUser(usernameLogin);   // to check that
-                                //bool islogged = dBManager.IsLoggedIn(usernameLogin);
                                 bool isLogged = true;
 
-                                //
                                 Enums.UserTypes userType = dBManager.GetUserType(usernameLogin); //check user type
 
                                 switch (userType)
@@ -87,55 +84,7 @@ namespace Refactoring
                                             switch (userMenuOption)
                                             {
                                                 case Enums.UserMenuOptions.CreateNewMessage:
-                                                    Console.Clear();
-                                                    Console.WriteLine("======= Create new Message =======");
-                                                    Console.WriteLine();
-                                                    Console.WriteLine("Please type the username of the recipient of the message:\n");
-                                                    string recipient = inputManager.InputUserName();
-                                                
-
-
-                                                    if (recipient is null) //if ESC is pressed
-                                                    {
-                                                        break;
-                                                    }
-
-                                                    // check if recipient username exists in database
-                                                    bool recipientExists = dBManager.DoesUsernameExist(recipient);
-                                                    if (!recipientExists)
-                                                    {
-                                                        Console.ForegroundColor = ConsoleColor.Magenta;
-                                                        Console.WriteLine();
-                                                        Console.WriteLine($"A user with username '{recipient}' does not exist.");
-                                                        Console.ForegroundColor = ConsoleColor.Cyan;
-                                                        Console.WriteLine("\nPress any key to go back to the user menu");
-                                                        Console.ResetColor();
-                                                        Console.ReadKey();
-                                                    }
-                                                    else // the recipient exists. Go on to create and send message
-                                                    {
-                                                        // check if recipient is active
-                                                        bool recipientActive = dBManager.IsUserActive(recipient);
-                                                        if (!recipientActive)
-                                                        {
-                                                            Console.ForegroundColor = ConsoleColor.Red;
-                                                            Console.WriteLine("\nThe recipient you chose is no longer active.");
-                                                            Console.WriteLine("Try sending a message to another user.");
-                                                            Console.ForegroundColor = ConsoleColor.Cyan;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                        else
-                                                        {
-                                                            messageManager.CreateMessage(usernameLogin,recipient);
-                                                            Console.ForegroundColor = ConsoleColor.Cyan;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-
-                                                    }
+                                                    CreateNewUserMessage(inputManager, dBManager, messageManager, usernameLogin);
                                                     break;
 
                                                 case Enums.UserMenuOptions.Inbox:
@@ -160,6 +109,7 @@ namespace Refactoring
                                                     Console.WriteLine("\nLogging out...");
                                                     System.Threading.Thread.Sleep(700);
                                                     break;
+
                                                 case Enums.UserMenuOptions.Quit:
                                                     Console.Clear();
                                                     isLogged = false;
@@ -171,7 +121,6 @@ namespace Refactoring
                                         break;
 
                                     case Enums.UserTypes.JuniorAdmin:
-
                                         do
                                         {
                                             Enums.JuniorAdminMenuOptions juniorAdminMenuOption = menus.JuniorAdminMenu(usernameLogin);
@@ -180,52 +129,7 @@ namespace Refactoring
                                             {
                                                 case Enums.JuniorAdminMenuOptions.CreateNewMessage:
 
-                                                    Console.Clear();
-                                                    Console.WriteLine("======= Create new Message =======");
-                                                    Console.WriteLine();
-                                                    Console.WriteLine("Please type the username of the recipient of the message:\n");
-                                                    string recipient = inputManager.InputUserName();
-
-                                                    if (recipient is null) //if ESC is pressed
-                                                    {
-                                                        break;
-                                                    }
-
-                                                    // check if recipient username exists in database
-                                                    bool recipientExists = dBManager.DoesUsernameExist(recipient);
-                                                    if (!recipientExists)
-                                                    {
-                                                        Console.ForegroundColor = ConsoleColor.Magenta;
-                                                        Console.WriteLine();
-                                                        Console.WriteLine($"A user with username '{recipient}' does not exist.");
-                                                        Console.ForegroundColor = ConsoleColor.Cyan;
-                                                        Console.WriteLine("\nPress any key to go back to the user menu");
-                                                        Console.ResetColor();
-                                                        Console.ReadKey();
-                                                    }
-                                                    else // the recipient exists. Go on to create and send message
-                                                    {
-                                                        // check if recipient is active
-                                                        bool recipientActive = dBManager.IsUserActive(recipient);
-                                                        if (!recipientActive)
-                                                        {
-                                                            Console.ForegroundColor = ConsoleColor.Red;
-                                                            Console.WriteLine("\nThe recipient you chose is no longer active.");
-                                                            Console.WriteLine("Try sending a message to another user.");
-                                                            Console.ForegroundColor = ConsoleColor.Cyan;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                        else
-                                                        {
-                                                            messageManager.CreateMessage(usernameLogin, recipient);
-                                                            Console.ForegroundColor = ConsoleColor.Cyan;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                    }
+                                                    CreateJuniorAdminMessage(inputManager, dBManager, messageManager, usernameLogin);
                                                     break;
 
                                                 case Enums.JuniorAdminMenuOptions.Inbox:
@@ -283,7 +187,6 @@ namespace Refactoring
                                             }
 
                                         } while (isLogged);
-
                                         break;
 
                                     case Enums.UserTypes.MasterAdmin:
@@ -295,52 +198,7 @@ namespace Refactoring
                                             {
                                                 case Enums.MasterAdminMenuOptions.CreateNewMessage:
 
-                                                    Console.Clear();
-                                                    Console.WriteLine("======= Create new Message =======");
-                                                    Console.WriteLine();
-                                                    Console.WriteLine("Please type the username of the recipient of the message:\n");
-                                                    string recipient = inputManager.InputUserName();
-
-                                                    if (recipient is null)
-                                                    {
-                                                        break;
-                                                    }
-
-                                                    // check if recipient username exists in database
-                                                    bool recipientExists = dBManager.DoesUsernameExist(recipient);
-                                                    if (!recipientExists)
-                                                    {
-                                                        Console.ForegroundColor = ConsoleColor.Magenta;
-                                                        Console.WriteLine();
-                                                        Console.WriteLine($"A user with username '{recipient}' does not exist.");
-                                                        Console.ForegroundColor = ConsoleColor.Blue;
-                                                        Console.WriteLine("\nPress any key to go back to the user menu");
-                                                        Console.ResetColor();
-                                                        Console.ReadKey();
-                                                    }
-                                                    else // the recipient exists. Go on to create and send message
-                                                    {
-                                                        // check if recipient is active
-                                                        bool recipientActive = dBManager.IsUserActive(recipient);
-                                                        if (!recipientActive)
-                                                        {
-                                                            Console.ForegroundColor = ConsoleColor.Red;
-                                                            Console.WriteLine("\nThe recipient you chose is no longer active.");
-                                                            Console.WriteLine("Try sending a message to another user.");
-                                                            Console.ForegroundColor = ConsoleColor.Blue;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                        else
-                                                        {
-                                                            messageManager.CreateMessage(usernameLogin, recipient);
-                                                            Console.ForegroundColor = ConsoleColor.Blue;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                    }
+                                                    CreateMasterAdminMessage(inputManager, dBManager, messageManager, usernameLogin);
                                                     break;
 
                                                 case Enums.MasterAdminMenuOptions.Inbox:
@@ -407,7 +265,6 @@ namespace Refactoring
                                         break;
 
                                     case Enums.UserTypes.SuperAdmin:
-
                                         do
                                         {
                                             Enums.SuperAdminMenuOptions superAdminMenuOption = menus.SuperAdminMenu(usernameLogin);
@@ -416,52 +273,7 @@ namespace Refactoring
                                             {
                                                 case Enums.SuperAdminMenuOptions.CreateNewMessage:
 
-                                                    Console.Clear();
-                                                    Console.WriteLine("======= Create new Message =======");
-                                                    Console.WriteLine();
-                                                    Console.WriteLine("Please type the username of the recipient of the message:\n");
-                                                    string recipient = inputManager.InputUserName();
-
-                                                    if (recipient is null) //if ESC is pressed
-                                                    {
-                                                        break;
-                                                    }
-
-                                                    // check if recipient username exists in database
-                                                    bool recipientExists = dBManager.DoesUsernameExist(recipient);
-                                                    if (!recipientExists)
-                                                    {
-                                                        Console.ForegroundColor = ConsoleColor.Magenta;
-                                                        Console.WriteLine();
-                                                        Console.WriteLine($"A user with username '{recipient}' does not exist.");
-                                                        Console.ForegroundColor = ConsoleColor.Cyan;
-                                                        Console.WriteLine("\nPress any key to go back to the user menu");
-                                                        Console.ResetColor();
-                                                        Console.ReadKey();
-                                                    }
-                                                    else // the recipient exists. Go on to create and send message
-                                                    {
-                                                        // check if recipient is active
-                                                        bool recipientActive = dBManager.IsUserActive(recipient);
-                                                        if (!recipientActive)
-                                                        {
-                                                            Console.ForegroundColor = ConsoleColor.Red;
-                                                            Console.WriteLine("\nThe recipient you chose is no longer active.");
-                                                            Console.WriteLine("Try sending a message to another user.");
-                                                            Console.ForegroundColor = ConsoleColor.Cyan;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                        else
-                                                        {
-                                                            messageManager.CreateMessage(usernameLogin, recipient);
-                                                            Console.ForegroundColor = ConsoleColor.Cyan;
-                                                            Console.WriteLine("\nPress any key to go back to the user menu");
-                                                            Console.ResetColor();
-                                                            Console.ReadKey();
-                                                        }
-                                                    }
+                                                    CreateSuperAdminMessage(inputManager, dBManager, messageManager, usernameLogin);
                                                     break;
 
                                                 case Enums.SuperAdminMenuOptions.Inbox:
@@ -568,6 +380,214 @@ namespace Refactoring
             } while (true);
         
             
+        }
+
+        private static void CreateSuperAdminMessage(InputManager inputManager, DataBaseManager dBManager,
+            MessageManager messageManager, string usernameLogin)
+        {
+            CreateUserMessage(inputManager, dBManager, messageManager, usernameLogin, ConsoleColor.Cyan);
+        }
+
+        private static void CreateMasterAdminMessage(InputManager inputManager, DataBaseManager dBManager,
+            MessageManager messageManager, string usernameLogin)
+        {
+            Console.Clear();
+            Console.WriteLine("======= Create new Message =======");
+            Console.WriteLine();
+            Console.WriteLine("Please type the username of the recipient of the message:\n");
+            string recipient = inputManager.InputUserName();
+
+            if (recipient is null)
+            {
+                return;
+            }
+
+            // check if recipient username exists in database
+            bool recipientExists = dBManager.DoesUsernameExist(recipient);
+            if (!recipientExists)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine();
+                Console.WriteLine($"A user with username '{recipient}' does not exist.");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("\nPress any key to go back to the user menu");
+                Console.ResetColor();
+                Console.ReadKey();
+            }
+            else // the recipient exists. Go on to create and send message
+            {
+                // check if recipient is active
+                bool recipientActive = dBManager.IsUserActive(recipient);
+                if (!recipientActive)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nThe recipient you chose is no longer active.");
+                    Console.WriteLine("Try sending a message to another user.");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+                else
+                {
+                    messageManager.CreateMessage(usernameLogin, recipient);
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        private static void CreateJuniorAdminMessage(InputManager inputManager, DataBaseManager dBManager,
+            MessageManager messageManager, string usernameLogin)
+        {
+            Console.Clear();
+            Console.WriteLine("======= Create new Message =======");
+            Console.WriteLine();
+            Console.WriteLine("Please type the username of the recipient of the message:\n");
+            string recipient = inputManager.InputUserName();
+
+            if (recipient is null) //if ESC is pressed
+            {
+                return;
+            }
+
+            // check if recipient username exists in database
+            bool recipientExists = dBManager.DoesUsernameExist(recipient);
+            if (!recipientExists)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine();
+                Console.WriteLine($"A user with username '{recipient}' does not exist.");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\nPress any key to go back to the user menu");
+                Console.ResetColor();
+                Console.ReadKey();
+            }
+            else // the recipient exists. Go on to create and send message
+            {
+                // check if recipient is active
+                bool recipientActive = dBManager.IsUserActive(recipient);
+                if (!recipientActive)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nThe recipient you chose is no longer active.");
+                    Console.WriteLine("Try sending a message to another user.");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+                else
+                {
+                    messageManager.CreateMessage(usernameLogin, recipient);
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        private static void CreateNewUserMessage(InputManager inputManager, DataBaseManager dBManager,
+            MessageManager messageManager, string usernameLogin)
+        {
+            Console.Clear();
+            Console.WriteLine("======= Create new Message =======");
+            Console.WriteLine();
+            Console.WriteLine("Please type the username of the recipient of the message:\n");
+            string recipient = inputManager.InputUserName();
+            if (recipient is null) //if ESC is pressed
+            {
+                return;
+            }
+
+            // check if recipient username exists in database
+            bool recipientExists = dBManager.DoesUsernameExist(recipient);
+            if (!recipientExists)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine();
+                Console.WriteLine($"A user with username '{recipient}' does not exist.");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("\nPress any key to go back to the user menu");
+                Console.ResetColor();
+                Console.ReadKey();
+            }
+            else // the recipient exists. Go on to create and send message
+            {
+                // check if recipient is active
+                bool recipientActive = dBManager.IsUserActive(recipient);
+                if (!recipientActive)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nThe recipient you chose is no longer active.");
+                    Console.WriteLine("Try sending a message to another user.");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+                else
+                {
+                    messageManager.CreateMessage(usernameLogin, recipient);
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        private static void CreateUserMessage(InputManager inputManager, DataBaseManager dBManager,
+            MessageManager messageManager, string usernameLogin, ConsoleColor color)
+        {
+            Console.Clear();
+            Console.WriteLine("======= Create new Message =======");
+            Console.WriteLine();
+            Console.WriteLine("Please type the username of the recipient of the message:\n");
+            string recipient = inputManager.InputUserName();
+            if (recipient is null) //if ESC is pressed
+            {
+                return;
+            }
+
+            // check if recipient username exists in database
+            bool recipientExists = dBManager.DoesUsernameExist(recipient);
+            if (!recipientExists)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine();
+                Console.WriteLine($"A user with username '{recipient}' does not exist.");
+                Console.ForegroundColor = color;
+                Console.WriteLine("\nPress any key to go back to the user menu");
+                Console.ResetColor();
+                Console.ReadKey();
+            }
+            else // the recipient exists. Go on to create and send message
+            {
+                // check if recipient is active
+                bool recipientActive = dBManager.IsUserActive(recipient);
+                if (!recipientActive)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nThe recipient you chose is no longer active.");
+                    Console.WriteLine("Try sending a message to another user.");
+                    Console.ForegroundColor = color;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+                else
+                {
+                    messageManager.CreateMessage(usernameLogin, recipient);
+                    Console.ForegroundColor = color;
+                    Console.WriteLine("\nPress any key to go back to the user menu");
+                    Console.ResetColor();
+                    Console.ReadKey();
+                }
+            }
         }
 
         private static bool ValidatePassword(InputManager inputManager, DataBaseManager dBManager, string usernameLogin)
