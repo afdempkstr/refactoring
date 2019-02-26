@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Refactoring
 {
-    class MenuManager
+    public class MenuManager
     {
         public int ScrollMenu(string header, string[] menuItems)
         {

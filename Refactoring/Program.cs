@@ -15,7 +15,9 @@ namespace Refactoring
             DataBaseManager dBManager = new DataBaseManager();
             InputManager inputManager = new InputManager();
             MessageManager messageManager = new MessageManager();
+            App app = new App();
 
+            bool shouldExit = false;
             do
             {
                 Enums.MainMenuOptions mainMenuChoice = menus.MainMenu(); //Run the Main Menu
@@ -34,15 +36,15 @@ namespace Refactoring
                         }
 
                         // checks if username exists in database
-                        if (!ValidateUsername(dBManager, usernameLogin)) break;
+                        if (!app.ValidateUsername(usernameLogin)) break;
 
                         // username exists in database, continue to ask for password
                         // check if user is active
-                        if (!ValidateActiveUser(dBManager, usernameLogin)) break;
+                        if (!app.ValidateActiveUser(usernameLogin)) break;
 
                         Console.WriteLine($"\nWelcome {usernameLogin}!");
 
-                        bool isPasswordCorrect = ValidatePassword(inputManager, dBManager, usernameLogin);
+                        bool isPasswordCorrect = app.ValidatePassword(usernameLogin);
                         if (!isPasswordCorrect) break;
                     
                         Console.ForegroundColor = ConsoleColor.Green;
@@ -66,7 +68,7 @@ namespace Refactoring
                             case Enums.ExitOptions.CtrlQ:
                                 Console.Clear();
                                 Console.WriteLine("\nClosing application...");
-                                Environment.Exit(0);
+                                shouldExit = true;
                                 break;
 
                             case Enums.ExitOptions.Enter:
@@ -84,7 +86,7 @@ namespace Refactoring
                                             switch (userMenuOption)
                                             {
                                                 case Enums.UserMenuOptions.CreateNewMessage:
-                                                    CreateUserMessage(inputManager, dBManager, messageManager, usernameLogin, ConsoleColor.Cyan);
+                                                    app.CreateUserMessage(usernameLogin, ConsoleColor.Cyan);
                                                     break;
 
                                                 case Enums.UserMenuOptions.Inbox:
@@ -129,7 +131,7 @@ namespace Refactoring
                                             {
                                                 case Enums.JuniorAdminMenuOptions.CreateNewMessage:
 
-                                                    CreateUserMessage(inputManager, dBManager, messageManager, usernameLogin, ConsoleColor.Cyan);
+                                                    app.CreateUserMessage(usernameLogin, ConsoleColor.Cyan);
                                                     break;
 
                                                 case Enums.JuniorAdminMenuOptions.Inbox:
@@ -198,7 +200,7 @@ namespace Refactoring
                                             {
                                                 case Enums.MasterAdminMenuOptions.CreateNewMessage:
 
-                                                    CreateUserMessage(inputManager, dBManager, messageManager, usernameLogin, ConsoleColor.Blue);
+                                                    app.CreateUserMessage(usernameLogin, ConsoleColor.Blue);
                                                     break;
 
                                                 case Enums.MasterAdminMenuOptions.Inbox:
@@ -273,7 +275,7 @@ namespace Refactoring
                                             {
                                                 case Enums.SuperAdminMenuOptions.CreateNewMessage:
 
-                                                    CreateUserMessage(inputManager, dBManager, messageManager, usernameLogin, ConsoleColor.Cyan);
+                                                    app.CreateUserMessage(usernameLogin, ConsoleColor.Cyan);
                                                     break;
 
                                                 case Enums.SuperAdminMenuOptions.Inbox:
@@ -364,7 +366,7 @@ namespace Refactoring
                         break;
 
                     case Enums.MainMenuOptions.SignUp:
-                        SignUpUser(menus, inputManager, dBManager);
+                        app.SignUpUser();
                         break;
 
                     case Enums.MainMenuOptions.Info:
@@ -374,162 +376,10 @@ namespace Refactoring
                     case Enums.MainMenuOptions.Exit:
                         Console.Clear();
                         Console.WriteLine("\nClosing application...");
-                        Environment.Exit(0);
+                        shouldExit = true;
                         break;
                 }
-            } while (true);
-        }
-
-        private static void CreateUserMessage(InputManager inputManager, DataBaseManager dBManager,
-            MessageManager messageManager, string usernameLogin, ConsoleColor color)
-        {
-            Console.Clear();
-            Console.WriteLine("======= Create new Message =======");
-            Console.WriteLine();
-            Console.WriteLine("Please type the username of the recipient of the message:\n");
-            string recipient = inputManager.InputUserName();
-            if (recipient is null) //if ESC is pressed
-            {
-                return;
-            }
-
-            // check if recipient username exists in database
-            bool recipientExists = dBManager.DoesUsernameExist(recipient);
-            if (!recipientExists)
-            {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine();
-                Console.WriteLine($"A user with username '{recipient}' does not exist.");
-                Console.ForegroundColor = color;
-                Console.WriteLine("\nPress any key to go back to the user menu");
-                Console.ResetColor();
-                Console.ReadKey();
-            }
-            else // the recipient exists. Go on to create and send message
-            {
-                // check if recipient is active
-                bool recipientActive = dBManager.IsUserActive(recipient);
-                if (!recipientActive)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\nThe recipient you chose is no longer active.");
-                    Console.WriteLine("Try sending a message to another user.");
-                    Console.ForegroundColor = color;
-                    Console.WriteLine("\nPress any key to go back to the user menu");
-                    Console.ResetColor();
-                    Console.ReadKey();
-                }
-                else
-                {
-                    messageManager.CreateMessage(usernameLogin, recipient);
-                    Console.ForegroundColor = color;
-                    Console.WriteLine("\nPress any key to go back to the user menu");
-                    Console.ResetColor();
-                    Console.ReadKey();
-                }
-            }
-        }
-
-        private static bool ValidatePassword(InputManager inputManager, DataBaseManager dBManager, string usernameLogin)
-        {
-            Console.WriteLine("\nPlease enter your password.");
-            bool isPasswordCorrect = false;
-            int numberOfAttempts = 0; // Holds the number of attempts for password input
-            int maxNumberOfAttempts = 3;
-            string passwordLogin;
-
-            while (!isPasswordCorrect && numberOfAttempts < maxNumberOfAttempts)
-            {
-                passwordLogin = inputManager.InputLoginPassword();
-                numberOfAttempts += 1;
-                isPasswordCorrect = dBManager.IsPasswordCorrect(usernameLogin, passwordLogin);
-                if (!isPasswordCorrect)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Wrong password. Try again.");
-                    Console.ResetColor();
-                }
-            }
-
-            if (!isPasswordCorrect && (numberOfAttempts == maxNumberOfAttempts))
-            {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("Maximum number of attemps reached!");
-                Console.ResetColor();
-                Console.WriteLine("\nPress any key to go back.");
-                Console.ReadKey();
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool ValidateActiveUser(DataBaseManager dBManager, string usernameLogin)
-        {
-            if (!dBManager.IsUserActive(usernameLogin))
-            {
-                // user not active
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"The user with username '{usernameLogin}' is no longer active.");
-                Console.WriteLine("Press any key to go back");
-                Console.ReadKey();
-                Console.ResetColor();
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool ValidateUsername(DataBaseManager dBManager, string usernameLogin)
-        {
-            if (!dBManager.DoesUsernameExist(usernameLogin))
-            {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("The username you entered does not exist in the database. Please SignUp.");
-                Console.WriteLine("Press any key to go back to the Main Menu.");
-                Console.ResetColor();
-                Console.ReadKey();
-                return false;
-            }
-
-            return true;
-        }
-
-        private static void SignUpUser(MenuManager menus, InputManager inputManager, DataBaseManager dBManager)
-        {
-            bool itExists = false;
-            string usernameSignup;
-            do
-            {
-                menus.SignUpMenu();
-                usernameSignup = inputManager.InputUserName();
-                if (usernameSignup is null)
-                {
-                    break;
-                }
-
-                itExists = dBManager.DoesUsernameExist(usernameSignup); // Check if username already exists in database
-                if (itExists)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("The username you entered already exists. Please choose another.");
-                    Console.ResetColor();
-                    Console.ReadKey();
-                }
-            } while (itExists);
-
-            if (usernameSignup != null) // username is null if ESC is pressed
-            {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("The username you entered is not taken. Nice choice!");
-                Console.ResetColor();
-
-                Console.WriteLine();
-                string password = inputManager.InputPassword();
-                dBManager.AddUser(usernameSignup, password); // add new user to database
-                Console.WriteLine("\nPress any key to go back to Main Menu.");
-                Console.ReadKey();
-            }
+            } while (!shouldExit);
         }
     }
 }
